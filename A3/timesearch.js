@@ -1,61 +1,77 @@
-// Set the dimensions of the canvas / graph
-var	margin = {top: 30, right: 20, bottom: 30, left: 50},
-	width = 600 - margin.left - margin.right,
-	height = 270 - margin.top - margin.bottom;
- 
-// Parse the date / time
-var	parseDate = d3.time.format("%m/%e/%y").parse;
- 
-// Set the ranges
-var	x = d3.time.scale().range([0, width]);
-var	y = d3.scale.linear().range([height, 0]);
- 
-// Define the axes
-var	xAxis = d3.svg.axis().scale(x)
-	.orient("bottom").ticks(5);
- 
-var	yAxis = d3.svg.axis().scale(y)
-	.orient("left").ticks(5);
- 
-// Define the line
-var	valueline = d3.svg.line()
-	.x(function(d) { return x(d.date); })
-	.y(function(d) { return y(d.A); });
-    
-// Adds the svg canvas
-var	svg = d3.select("body")
-	.append("svg")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-	.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
- 
-// Get the data
-d3.csv("stock_data.csv", function(error, data) {
-	data.forEach(function(d) {
-		d.date = parseDate(d.date);
-		console.log(d.A);
-		d.A = +d.A;
-	});
- 
-	// Scale the range of the data
-	x.domain(d3.extent(data, function(d) { return d.date; }));
-	y.domain([0, d3.max(data, function(d) { return d.A; })]);
- 
-	// Add the valueline path.
-	svg.append("path")	
-		.attr("class", "line")
-		.attr("d", valueline(data));
- 
-	// Add the X Axis
-	svg.append("g")		
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
-		.call(xAxis);
- 
-	// Add the Y Axis
-	svg.append("g")		
-		.attr("class", "y axis")
-		.call(yAxis);
- 
+var svg = d3.select("svg"),
+    margin = {top: 30, right: 20, bottom: 30, left: 50},
+    width = svg.attr("width") - margin.left - margin.right,
+    height = svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseDate = d3.timeParse("%m/%e/%y");
+
+var x = d3.scaleTime().range([0, width]),
+    y = d3.scaleLinear().range([height, 0]),
+    z = d3.scaleOrdinal(d3.schemeCategory10);
+
+var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.price); });
+
+d3.csv("stock_data.csv", type, function(error, data) {
+  if (error) throw error;
+
+  var stocks = data.columns.slice(1).map(function(id) {
+    return {
+      id: id,
+      values: data.map(function(d) {
+        return {date: d.date, price: d[id]};
+      })
+    };
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(stocks, function(c) { return d3.min(c.values, function(d) { return d.price; }); }),
+    d3.max(stocks, function(c) { return d3.max(c.values, function(d) { return d.price; }); })
+  ]);
+
+  z.domain(stocks.map(function(c) { return c.id; }));
+
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("Stock Price, $");
+
+  var stock = g.selectAll(".stock")
+    .data(stocks)
+    .enter().append("g")
+      .attr("class", "stock");
+
+  stock.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return z(d.id); });
+
+  stock.append("text")
+      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.price) + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+      .style("font", "10px sans-serif")
+      .text(function(d) { return d.id; });
 });
+
+function type(d, _, columns) {
+  d.date = parseDate(d.date);
+  for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
+  return d;
+}
