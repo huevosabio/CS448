@@ -1,0 +1,62 @@
+==Exploratory Data Visualization==
+
+===Question===
+
+The increasing range of electric vehicles (EVs) and the advent of autonomous vehicles (AVs) promise to increase the adoption of electric vehicles. The most likely form of adoption of EVs will be in autonomous mobility-on-demand (AMoD) systems, where self-driving vehicles serve as taxis.
+
+This raises a question, how will the electric grid be impacted?  Will the fleets of electric vehicles impose new challenges to our existing grid? According to the US Energy Information Agency, the average American home consumes around 30 kWh. In contrast, the  [http://www.chevrolet.com/bolt-ev-electric-vehicle.html new Chevy Bolt will have a 60kWh battery], or double the average household electricity consumption.
+
+===Datasets===
+
+In order to get a sense of the impact of electric vehicles on our current grid, I would ideally have datasets that cover car trips, power transimission networks, generators, and energy loads. Unfortunately, very few real datasets of this type have been released. As a proxy,  I will use the NYC Taxi and Limousine [https://cloud.google.com/bigquery/public-data/nyc-tlc-trips dataset] and the 2010 energy consumption by postal area in New York , available [https://github.com/jonroberts/zipcodegrid here]. Additionally, I will use [http://catalog.opendata.city/dataset/nyc-zip-code-tabulation-areas/resource/eec14f19-9794-46ef-9bf4-7f6835ffbf4c?view_id=0e24e52b-32a7-4648-b3ac-2edb6f4dd630 this GeoJSON dataset] as a bridge the two datasets.
+
+===Getting Acquainted with the Data===
+
+The NYC Taxi dataset is huge (~130GB). Thus, I have limited the dataset to a specific day (March 1, 2012) and to a specific geographical area, Manhattan. If interested, you can find the details on how I trimmed the geographical area [http://notes.ramondario.com/testing-new-yorks-taxi-dataset-googles-bigquery-and-geopandas.html here].
+
+Limiting to that space and time, I get this by using Tableau:
+[[Image:Manhattan_points.png|center|600px|Taxi trips in Manhattan during March 1, 2012. Red dots represent dropoffs, while blue ones represent pickups.]]
+
+Not many surprises there. The most heavily dotted area is just south of Central Park, which is expected, and North Manhattan is sparselly dotted in comparison. 
+
+In addition to the start and finish coordinates, each trip has its travel distance. We can get an idea of the travel behavior with a histogram:
+[[Image:trip_distribution.png|center|600px|Distribution of travel distance.]]
+
+You might be asking, why is most of the plot blank? The reason is that there are some outlying trips that were significantly (~75 miles) longer than the rest (~1.5 miles).
+
+On the other hand, I have the energy consumption dataset in the form of a TSV. Let's take a look at that consumption: 
+[[Image:yearly_electricity.png|center|600px|Distribution of postal area yearly electricity consumption.]]
+
+This is interesting. The distribution follows a bell curve with a long tail. The median is at 204 GWh/yr, or 560,448 kWh/day, i.e. 9340 Bolt batteries. The impact of electriv vehicles starts to seem small. However, I still need to know where these vehicles charge.
+
+===Spatial Aspects of Energy Consumption===
+
+I'm going to make a very strong assumption: EV-taxis get charged immediately after they dropoff a customer, and exactly the amount of energy they consumed in their last trip. While the actual consumption of electricity by mile is more nuanced, I am going to assume that the vehicles are all as efficient as the EPA rating of the Chevy Bolt, that is 0.25 kWh per mile.
+
+Now, in order to relate both datasets, I'm going to use my GeoJSON file to first relate each zipcode energy consumption to a polygon, and then to relate each trip energy consumption to that same polygon. 
+
+The postal area look like this:
+[[Image:zipcodes.png|center|600px]]
+
+By using Python's GeoPandas, I can now merge my original TSV file and match each row to one of the GeoJSON polygons. This is the end result:
+[[Image:energy_by_code.png|center|600px|Daily energy consumption in GWh.]]
+
+
+Noticeably, the areas of highest energy consumption seem to correlate with our first plot, the taxi pickup and dropoffs. Let me look into detail.
+
+===Merging Both Datasets===
+
+Using the magic of GeoPandas, I assigned to each dropoff location a postal area. This allowed me to aggregate all the electricity consumption on each postal area due to taxis. Now I can relate both consumptions:
+[[Image:carkwh_vs_nowkwh.png|center|600px|Energy consumption due to electric taxis vs total building consumption.]]
+
+As previously suspected, both correlate strongly. This is, after all, not surprising: the denser areas attract more people and also use more energy. But how much of an increase do the taxis represent? Take a look at the graph. The difference in scales is a first proxy: the building consumption is orders of magnitude larger. In fact, the increase due to electric taxis is on average 0.3%:
+
+[[Image:increase_distribution.png|center|600px|Distrbution of postal area electricity consumtion increase due electric taxis.]]
+
+===Conclusions===
+
+From this toy explorative example, the impact of electric vehicles on the grid appears to be low. However, there are two aspects that might affect this. First, we did not cover the temporal aspects. It might be the case that most charging happens in some areas at the peak of electricity consumption, making the incrase more relevant and perhaps placing some strains on the local grid. Sadly, I could not find a dataset that contains city wide energy consumption at hourly intervals. Second, New York City is very dense. Thus, the energy consumed in a postal area is likely much higher per square meter than in any other american city. I would like to see a similar excercise in a city like San Francisco, and yet another one in a city like Houston.
+
+
+
+
