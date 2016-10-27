@@ -22,7 +22,7 @@ var brush = d3.brush()
  svg.append("g")
       .attr("class", "brush")
       .call(brush)
-      .call(brush.move, [[307, 167], [611, 539]]);
+      //.call(brush.move, null);
 
 d3.csv("data_06-08.csv", type, function(error, data) {
   if (error) throw error;
