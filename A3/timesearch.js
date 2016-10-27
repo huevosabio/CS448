@@ -15,7 +15,16 @@ var line = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.price); });
 
-d3.csv("stock_data.csv", type, function(error, data) {
+var brush = d3.brush()
+    .on("start brush", brushed)
+    .on("end", brushended);
+
+ svg.append("g")
+      .attr("class", "brush")
+      .call(brush)
+      .call(brush.move, [[307, 167], [611, 539]]);
+
+d3.csv("data_06-08.csv", type, function(error, data) {
   if (error) throw error;
 
   var stocks = data.columns.slice(1).map(function(id) {
@@ -70,8 +79,24 @@ d3.csv("stock_data.csv", type, function(error, data) {
       .text(function(d) { return d.id; });
 });
 
+
 function type(d, _, columns) {
   d.date = parseDate(d.date);
   for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
   return d;
+}
+
+function brushed() {
+  var s = d3.event.selection,
+      x0 = s[0][0],
+      y0 = s[0][1],
+      dx = s[1][0] - x0,
+      dy = s[1][1] - y0,
+      max = 0;
+
+  console.log(s);
+}
+
+function brushended() {
+  console.log();
 }
