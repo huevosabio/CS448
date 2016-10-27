@@ -1,5 +1,5 @@
 var svg = d3.select("svg"),
-    margin = {top: 30, right: 20, bottom: 30, left: 50},
+    margin = {top: 30, right: 50, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
     height = svg.attr("height") - margin.top - margin.bottom,
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -41,15 +41,23 @@ d3.csv("stock_data.csv", type, function(error, data) {
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
-  g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("fill", "#000")
-      .text("Stock Price, $");
+  // g.append("g")
+  //     .attr("class", "axis axis--y")
+  //     .call(d3.axisLeft(y))
+  //   .append("text")
+  //     .attr("transform", "rotate(-90)")
+  //     .attr("y", 0)
+  //     .attr("dy", "0.71em")
+  //     .attr("fill", "#000")
+  //     .text("Stock Price, $");
+
+    svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Stock Price ($)");
 
   var stock = g.selectAll(".stock")
     .data(stocks)
