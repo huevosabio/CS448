@@ -21,6 +21,7 @@ var brush = d3.brush()
 
  svg.append("g")
       .attr("class", "brush")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")") // super important!
       .call(brush)
       //.call(brush.move, null);
 
@@ -90,13 +91,30 @@ function brushed() {
   var s = d3.event.selection,
       x0 = s[0][0],
       y0 = s[0][1],
-      dx = s[1][0] - x0,
-      dy = s[1][1] - y0,
+      x1 = s[1][0],
+      y1 = s[1][1],
       max = 0;
+  
+  stock = g.selectAll(".stock")
+  stock.each(function(d) { d.scanned = d.selected = false; });
+  search(stock, x0, y0, x1, y1);
+  stock.classed("line--scanned", function(d) { return d.scanned; });
+  stock.classed("line--selected", function(d) { return d.selected; });
 
-  console.log(s);
 }
 
 function brushended() {
   console.log();
+}
+
+// Find the lines within the specified rectangle.
+function search(stock, x0, y0, x3, y3) {
+  stock.each( function(d){
+    d.values.forEach( function(v) {
+        if ((x(v.date) >= x0) && (x(v.date) < x3) && (y(v.price) >= y0) && (y(v.price) < y3)){
+          d.selected = true;
+        };
+    });
+    d.scanned = true;
+  })
 }
