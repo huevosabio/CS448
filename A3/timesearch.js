@@ -16,8 +16,7 @@ var line = d3.line()
     .y(function(d) { return y(d.price); });
 
 var brush = d3.brush()
-    .on("start brush", brushed)
-    .on("end", brushended);
+    .on("start brush", brushed);
 
  svg.append("g")
       .attr("class", "brush")
@@ -109,10 +108,6 @@ function brushed() {
   stock.classed("line--scanned", function(d) { return d.scanned; });
   stock.classed("line--selected", function(d) { return d.selected; });
 
-}
-
-function brushended() {
-  console.log();
 }
 
 // Find the lines within the specified rectangle.
