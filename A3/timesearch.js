@@ -1,8 +1,35 @@
-var svg = d3.select("svg"),
-    margin = {top: 30, right: 50, bottom: 30, left: 50},
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
+/*
+Highly useful links:
+https://bl.ocks.org/mbostock/1550e57e12e73b86ad9e
+http://bl.ocks.org/syntagmatic/2409451
+http://bl.ocks.org/sxv/4485778
+http://bl.ocks.org/mbostock/6466603
+https://github.com/d3/d3/blob/master/API.md
+
+*/
+
+var titlebox = d3.select('h1').node().getBoundingClientRect();
+
+var svgwidth = 960,
+    svgheight = 500,
+    margin = {top: 30, right: 50, bottom: 30, left: 50};
+
+var canvas = d3.select('body')
+    .append('canvas')
+    .attr('width', svgwidth)
+    .attr('height', svgheight)
+    .style("padding", margin.top + "px " + margin.right + "px " + margin.bottom + "px " + margin.left + "px "),
+    context = canvas.node().getContext('2d');
+
+var svg = d3.select('body')
+    .append('svg')
+    .attr('width', svgwidth)
+    .attr('height', svgheight)
+    .style('top', titlebox.height + titlebox.top + titlebox.bottom),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    width = svgwidth - margin.left - margin.right,
+    height = svgheight - margin.top - margin.bottom;
+
 
 var parseDate = d3.timeParse("%m/%e/%y");
 
@@ -14,6 +41,12 @@ var line = d3.line()
     .curve(d3.curveBasis)
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.price); });
+
+var backgroundline = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.price); })
+    .context(context);
 
 var brush = d3.brush()
     .on("start brush", brushed);
@@ -29,26 +62,28 @@ var brush = d3.brush()
 //      .x(function(d){ return x(d.date); })
 //      .y(function(d){return y(d.price); });
 
-var trees;
+var trees,
+    stocks;
 
-var metrics = [];
-var fname = "IJGResults";
-var csvContent = "data:text/csv;charset=utf-8,";
+//for metrics
+//var metrics = [];
+//var fname = "IJGResults";
+//var csvContent = "data:text/csv;charset=utf-8,";
 
-$("#pressme").click(function(){
-    metrics.forEach(function(infoArray, index){
-      dataString = infoArray.join(",");
-      csvContent += dataString+ "\n";
-    });
-
-    var encodedUri = encodeURI(csvContent);
-    window.open(encodedUri);
-});
+//$("#pressme").click(function(){
+//    metrics.forEach(function(infoArray, index){
+//      dataString = infoArray.join(",");
+//      csvContent += dataString+ "\n";
+//    });
+//
+//    var encodedUri = encodeURI(csvContent);
+//    window.open(encodedUri);
+//});
 
 d3.csv("data_06-08.csv", type, function(error, data) {
   if (error) throw error;
 
-  var stocks = data.columns.slice(1).map(function(id, index) {
+  stocks = data.columns.slice(1).map(function(id, index) {
     values = data.map(function(d) {
         return {date: d.date, price: d[id], id: id, index: index};
       });
@@ -108,6 +143,16 @@ d3.csv("data_06-08.csv", type, function(error, data) {
   //quadtree.extent(extent)
     //.addAll(allValues);
 
+  // plot canvas
+  context.beginPath();
+  stocks.forEach(function(d){
+    backgroundline(d.values);
+  });
+  context.lineWidth = 1.5;
+  context.strokeStyle = "gray";
+  context.globalAlpha = 0.1;
+  context.stroke();
+
   g.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
@@ -123,6 +168,7 @@ d3.csv("data_06-08.csv", type, function(error, data) {
        .attr("fill", "#000")
        .text("Stock Price, $");
 
+
     svg.append("text")
     .attr("class", "y label")
     .attr("text-anchor", "end")
@@ -131,24 +177,17 @@ d3.csv("data_06-08.csv", type, function(error, data) {
     .attr("transform", "rotate(-90)")
     .text("Stock Price ($)");
 
-  var stock = g.selectAll(".stock")
-    .data(stocks)
-    .enter().append("g")
-    .attr("class", "stock line--scanned")
-    .each(function(d) { d.selected = false; });;
+  // immutable background
+  //var background = g.selectAll(".background")
+  //  .data(stocks)
+  //  .enter().append("g")
+  //  .attr("class", "background line--background")
+  //  .each(function(d) { d.selected = false; });
+  //background.append("path")
+  //    .attr("class", "line")
+  //    .attr("d", function(d) { return line(d.values); })
+  //    //.style("stroke", function(d) { return z(d.id); });
 
-  stock.append("path")
-      .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return z(d.id); });
-
-  stock.append("text")
-      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.price) + ")"; })
-      .attr("x", 3)
-      .attr("dy", "0.35em")
-      .style("font", "10px sans-serif")
-      .text(function(d) { return d.id; });
 });
 
 
@@ -166,7 +205,7 @@ function brushed() {
       y1 = s[1][1],
       max = 0;
   
-  
+  // left for comparison 
   //stock.each(function(d) { d.scanned = d.selected = false; });
   //var t0 = performance.now();
   //var selected = treeSearch(quadtree, x0, y0, x1, y1);
@@ -188,23 +227,19 @@ function brushed() {
   //console.log("Search2 took " + (t1 - t0) + " milliseconds.")
   //t0 = performance.now();
   var selected = treeSearch2(trees, x0, y0, x1, y1);
-  stock = g.selectAll(".stock").filter(function(d, i){
-    var shouldSelect = selected.has(d.id);
-    var isSelected = d.selected;
-    if (shouldSelect != isSelected) {
-      d.selected = shouldSelect;
-      return true;
-    } else {
-      return false;
-    }
-  })
-  stock.attr("class", function(d){
-    if (d.selected){
-      return "stock line line--selected";
-    } else {
-      return "stock line line--scanned"
-    }
-  })
+  stock_filtered = stocks.filter(function(d, i){
+    return selected.has(d.id);
+    });
+
+  update(stock_filtered);
+
+  //stock.style("opacity", function(d){
+  //  if (d.selected){
+  //    return 1.0;
+  //  } else {
+  //    return 0.0
+  //  }
+  //})
   //stock.classed("line--selected", function(d) { return selected.has(d.id); });
   //t1 = performance.now();
   //var ts2 = t1 - t0;
@@ -292,4 +327,50 @@ function treeSearch2(trees, x0, y0, x3, y3) {
 
   });
   return selected;
+}
+
+function update(data) {
+
+  // DATA JOIN
+  // Join new data with old elements, if any.
+  var stock = g.selectAll(".stock")
+    .data(data, function(d) { return d ? d.id : this.id; });
+
+  var update_stock = stock.enter().append("g")
+    .attr("class", "stock line--selected");
+
+  update_stock.append("path")
+    .attr("class", "line")
+    .attr("d", function(d) { return line(d.values); })
+    .style("stroke", function(d) { return z(d.id); });  
+
+  update_stock.append("text")
+      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.price) + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+      .style("font", "10px sans-serif")
+      .text(function(d) { return d.id; });
+
+  // UPDATE
+  // Update old elements as needed.
+  //text.attr("class", "update");
+
+  // ENTER
+  // Create new elements as needed.
+  //
+  // ENTER + UPDATE
+  // After merging the entered elements with the update selection,
+  // apply operations to both.
+  //text.enter().append("text")
+  //    .attr("class", "enter")
+  //    .attr("x", function(d, i) { return i * 32; })
+  //    .attr("dy", ".35em")
+  //  .merge(text)
+  //    .text(function(d) { return d; });
+
+  // EXIT
+  // Remove old elements as needed.
+  stock.exit().remove();
+  //text.exit().remove();
 }

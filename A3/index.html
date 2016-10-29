@@ -9,6 +9,16 @@ path {
   stroke-width: 2;
   fill: none;
 }
+
+svg {
+  position: absolute;
+  left: 0px;
+}
+
+canvas {
+	position: absolute;
+	left: 0px;
+}
  
 .axis path,
 .axis line {
@@ -32,15 +42,21 @@ path {
 }
 
 
-.line--scanned {
+.line--background {
+  stroke: gray;
+  stroke-opacity: 0.0;
+  stroke-width: 1;
+}
+
+.line--unselected {
   stroke: #000;
-  stroke-opacity: 0.1;
+  opacity: 0.0;
   stroke-width: 1;
 }
 
 .line--selected {
   stroke: #000;
-  stroke-opacity: 1;
+  opacity: 1;
   stroke-width: 1;
 }
 
@@ -51,13 +67,13 @@ path {
 <!--<form>
 	<input id="pressme" type="button" value="Download Search Metrics">
 </form>-->
- <svg width="960" height="500"></svg>
 <!-- load the d3.js library -->	
 <script src="http://d3js.org/d3.v4.min.js"></script>
+<!-- for metrics
 <script
 			  src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
 			  integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
-			  crossorigin="anonymous"></script>
+			  crossorigin="anonymous"></script> -->
 <script src="timesearch.js"></script>
  
 </body>
