@@ -5,7 +5,7 @@ http://bl.ocks.org/syntagmatic/2409451
 http://bl.ocks.org/sxv/4485778
 http://bl.ocks.org/mbostock/6466603
 https://github.com/d3/d3/blob/master/API.md
-
+http://bl.ocks.org/mbostock/3808218
 */
 
 var titlebox = d3.select('h1').node().getBoundingClientRect();
@@ -20,6 +20,11 @@ var canvas = d3.select('body')
     .attr('height', svgheight)
     .style("padding", margin.top + "px " + margin.right + "px " + margin.bottom + "px " + margin.left + "px "),
     context = canvas.node().getContext('2d');
+
+if(navigator.userAgent.toLowerCase().indexOf('firefox') <= -1){
+     // If not Firefox
+    canvas.style('top', titlebox.height + titlebox.top + titlebox.bottom + "px")
+}
 
 var svg = d3.select('body')
     .append('svg')
