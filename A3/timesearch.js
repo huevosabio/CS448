@@ -6,6 +6,8 @@ http://bl.ocks.org/sxv/4485778
 http://bl.ocks.org/mbostock/6466603
 https://github.com/d3/d3/blob/master/API.md
 http://bl.ocks.org/mbostock/3808218
+http://blog.schedulenaut.com/multiple-no-collision-brushes-in-d3js/ 
+http://bl.ocks.org/jssolichin/54b4995bd68275691a23
 */
 
 var titlebox = d3.select('h1').node().getBoundingClientRect();
@@ -35,6 +37,11 @@ var svg = d3.select('body')
     width = svgwidth - margin.left - margin.right,
     height = svgheight - margin.top - margin.bottom;
 
+//brushes container
+//svg.append("g")
+//   .attr("class", "brush")
+//   .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // super important!
+
 
 var parseDate = d3.timeParse("%m/%e/%y");
 
@@ -53,14 +60,12 @@ var backgroundline = d3.line()
     .y(function(d) { return y(d.price); })
     .context(context);
 
-var brush = d3.brush()
-    .on("start brush", brushed);
+// keep track of brushes
+var brushes = [];
+var brushCounter = 0;
+var selectedIds, allIds;
+newBrush();
 
- svg.append("g")
-      .attr("class", "brush")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")") // super important!
-      .call(brush)
-      //.call(brush.move, null);
 
 //var quadtree = d3.quadtree()
 //      .extent([[0, 0], [width + 1, height + 1]])
@@ -99,6 +104,9 @@ d3.csv("data_06-08.csv", type, function(error, data) {
     };
   });
 
+  allIds = stocks.map(function(d){
+    return d.id;
+  })
 
 
   // create tree
@@ -182,17 +190,6 @@ d3.csv("data_06-08.csv", type, function(error, data) {
     .attr("transform", "rotate(-90)")
     .text("Stock Price ($)");
 
-  // immutable background
-  //var background = g.selectAll(".background")
-  //  .data(stocks)
-  //  .enter().append("g")
-  //  .attr("class", "background line--background")
-  //  .each(function(d) { d.selected = false; });
-  //background.append("path")
-  //    .attr("class", "line")
-  //    .attr("d", function(d) { return line(d.values); })
-  //    //.style("stroke", function(d) { return z(d.id); });
-
 });
 
 
@@ -202,56 +199,56 @@ function type(d, _, columns) {
   return d;
 }
 
+function brushend(){
+  // add brush only if the last brush is not empty
+  var topBrush = 'b' + (brushCounter -1);
+  // if this the top brush AND there has been a change in the
+  // selection
+  if (this.id === topBrush){
+    var lastBrushSelection = d3.brushSelection(this);
+    if (lastBrushSelection[0] !== lastBrushSelection[1]){
+      newBrush();
+    }
+  }
+}
+
 function brushed() {
+  console.log(d3.event);
   var s = d3.event.selection,
       x0 = s[0][0],
       y0 = s[0][1],
       x1 = s[1][0],
       y1 = s[1][1],
       max = 0;
-  
-  // left for comparison 
-  //stock.each(function(d) { d.scanned = d.selected = false; });
-  //var t0 = performance.now();
-  //var selected = treeSearch(quadtree, x0, y0, x1, y1);
-  //var t1 = performance.now();
-  //var ts = t1 - t0;
-  //console.log("treeSearch took " + (t1 - t0) + " milliseconds.")
-  //stock.classed("line--scanned", function(d) { return true; });
-  //stock.classed("line--selected", function(d) { return selected.has(d.id); });
-  //t0 = performance.now();
-  //search(stock, x0, y0, x1, y1);
-  //t1 = performance.now();
-  //var s1 = t1 - t0
-  //console.log("Search took " + (t1 - t0) + " milliseconds.")
-  //stock.classed("line--selected", function(d) { return d.selected; });
-  //t0 = performance.now();
-  //search2(stock, x0, y0, x1, y1);
-  //t1 = performance.now();
-  //var s2 = t1 - t0
-  //console.log("Search2 took " + (t1 - t0) + " milliseconds.")
-  //t0 = performance.now();
-  var selected = treeSearch2(trees, x0, y0, x1, y1);
+  thisId = this.id; // for some reason I cant dynamically access it
+  var thisBrush = brushes.find(function(d){
+    return thisId == d.id;
+  });
+  thisBrush.selection = treeSearch2(trees, x0, y0, x1, y1);
+  thisBrush.selected = true;
+  updateFilter();
   stock_filtered = stocks.filter(function(d, i){
-    return selected.has(d.id);
-    });
+        return selectedIds.has(d.id)
+      });
 
   update(stock_filtered);
+}
 
-  //stock.style("opacity", function(d){
-  //  if (d.selected){
-  //    return 1.0;
-  //  } else {
-  //    return 0.0
-  //  }
-  //})
-  //stock.classed("line--selected", function(d) { return selected.has(d.id); });
-  //t1 = performance.now();
-  //var ts2 = t1 - t0;
-  //console.log("treeSearch2 took " + (t1 - t0) + " milliseconds.")
-
-  //area = (x1 - x0) * (y1 - y0);
-  //metrics.push([area, ts, ts2, s1, s2])
+function updateFilter() {
+  var activeBrushes = brushes.filter(function(b){
+    return b.selected;
+  })
+  if (brushes.length === 0){
+    selectedIds = [];
+  } else{
+    selectedIds = allIds;
+    activeBrushes.forEach(function(b){
+      selectedIds = selectedIds.filter(function(i){
+        return b.selection.has(i);
+      })
+    });
+  }
+  selectedIds = new Set(selectedIds);
 }
 
 // Find the lines within the specified rectangle.
@@ -282,7 +279,6 @@ function search2(stock, x0, y0, x3, y3) {
 function treeSearch(quadtree, x0, y0, x3, y3) {
   var selected = new Set();
   quadtree.visit(function(node, x1, y1, x2, y2) {
-    //console.log([x1, y1, x2, y2]);
     if (!node.length) {
       do {
         var d = node.data;
@@ -303,7 +299,6 @@ function treeSearch(quadtree, x0, y0, x3, y3) {
 function treeSearchBool(quadtree, x0, y0, x3, y3) {
   var found = false;
   quadtree.visit(function(node, x1, y1, x2, y2) {
-    //console.log([x1, y1, x2, y2]);
     if (!node.length) {
       do {
         var d = node.data;
@@ -334,10 +329,64 @@ function treeSearch2(trees, x0, y0, x3, y3) {
   return selected;
 }
 
+function newBrush(){
+  var brush = d3.brush()
+      .on("brush", brushed)
+      .on("end", brushend)
+  brushes.push({
+    id: 'b' + brushCounter, 
+    brush: brush, 
+    selection: [], 
+    selected: false
+    }); //d3 doesn't like all numeric ids
+  brushCounter += 1;
+  updateBrushes();
+}
+
+function updateBrushes() {
+  var gBrush = svg
+    .selectAll('.brush')
+    .data(brushes,  function (d){ return d ? d.id : this.id; });
+
+  gBrush.enter()
+    .insert("g", '.brush')
+    .attr('class', 'brush')
+    .attr('id', function(d, i){return d.id})
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .each(function(brushWrapper) {
+      //call the brush
+      brushWrapper.brush(d3.select(this));
+    });
+
+  gBrush.attr('class', function(d,i){return 'brush brush-'+i})
+    .selectAll('.overlay')
+    .attr('pointer-events', function(brushWrapper, i){
+          var brush = brushWrapper.brush;
+
+          return i === brushes.length-1 &&
+            brush !== undefined &&
+            brush.brushSelection() === brush.brushSelection()
+              ? 'all' : 'none';
+    })
+
+  gBrush.selectAll('.selection')
+    .on('click', function(brushWrapper){
+      if (d3.event.shiftKey){
+        d3.event.preventDefault();
+        d3.event.stopImmediatePropagation();
+        brushes = brushes.filter(function(d){
+          return d.id !== brushWrapper.id;
+        })
+        updateBrushes();
+      }
+    });
+
+  gBrush.exit()
+    .remove();
+}
+
 function update(data) {
 
-  // DATA JOIN
-  // Join new data with old elements, if any.
   var stock = g.selectAll(".stock")
     .data(data, function(d) { return d ? d.id : this.id; });
 
@@ -356,26 +405,5 @@ function update(data) {
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; });
-
-  // UPDATE
-  // Update old elements as needed.
-  //text.attr("class", "update");
-
-  // ENTER
-  // Create new elements as needed.
-  //
-  // ENTER + UPDATE
-  // After merging the entered elements with the update selection,
-  // apply operations to both.
-  //text.enter().append("text")
-  //    .attr("class", "enter")
-  //    .attr("x", function(d, i) { return i * 32; })
-  //    .attr("dy", ".35em")
-  //  .merge(text)
-  //    .text(function(d) { return d; });
-
-  // EXIT
-  // Remove old elements as needed.
   stock.exit().remove();
-  //text.exit().remove();
 }
