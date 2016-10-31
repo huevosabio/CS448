@@ -213,24 +213,36 @@ function brushend(){
 }
 
 function brushed() {
-  console.log(d3.event);
+  var thisId = this.id; // for some reason I cant dynamically access it
+  if (d3.event.sourceEvent.shiftKey){
+    brushes = brushes.filter(function(d){
+      return d.id !== thisId;
+    })
+    this.remove();
+    updateFilter();
+    stock_filtered = stocks.filter(function(d, i){
+        return selectedIds.has(d.id)
+      });
+    update(stock_filtered);
+    return
+  }
   var s = d3.event.selection,
       x0 = s[0][0],
       y0 = s[0][1],
       x1 = s[1][0],
       y1 = s[1][1],
       max = 0;
-  thisId = this.id; // for some reason I cant dynamically access it
   var thisBrush = brushes.find(function(d){
     return thisId == d.id;
   });
   thisBrush.selection = treeSearch2(trees, x0, y0, x1, y1);
   thisBrush.selected = true;
+  
   updateFilter();
+  
   stock_filtered = stocks.filter(function(d, i){
         return selectedIds.has(d.id)
       });
-
   update(stock_filtered);
 }
 
@@ -238,7 +250,7 @@ function updateFilter() {
   var activeBrushes = brushes.filter(function(b){
     return b.selected;
   })
-  if (brushes.length === 0){
+  if (activeBrushes.length === 0){
     selectedIds = [];
   } else{
     selectedIds = allIds;
@@ -368,18 +380,6 @@ function updateBrushes() {
             brush.brushSelection() === brush.brushSelection()
               ? 'all' : 'none';
     })
-
-  gBrush.selectAll('.selection')
-    .on('click', function(brushWrapper){
-      if (d3.event.shiftKey){
-        d3.event.preventDefault();
-        d3.event.stopImmediatePropagation();
-        brushes = brushes.filter(function(d){
-          return d.id !== brushWrapper.id;
-        })
-        updateBrushes();
-      }
-    });
 
   gBrush.exit()
     .remove();
