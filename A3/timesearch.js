@@ -166,6 +166,7 @@ d3.csv("data_06-08.csv", type, function(error, data) {
   context.globalAlpha = 0.1;
   context.stroke();
 
+
   g.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
@@ -174,21 +175,21 @@ d3.csv("data_06-08.csv", type, function(error, data) {
    g.append("g")
        .attr("class", "axis axis--y")
        .call(d3.axisLeft(y))
-     .append("text")
-       .attr("transform", "rotate(-90)")
-       .attr("y", 0)
-       .attr("dy", "0.71em")
-       .attr("fill", "#000")
-       .text("Stock Price, $");
 
-
-    svg.append("text")
-    .attr("class", "y label")
-    .attr("text-anchor", "end")
-    .attr("y", 6)
-    .attr("dy", ".75em")
+  svg.append("text")
     .attr("transform", "rotate(-90)")
-    .text("Stock Price ($)");
+    .attr("dy", "1em")
+    .attr("x",0-(svgheight/2))
+    .style("text-anchor", "middle")
+    .text("Stock Prices ($)");
+
+svg.append("text")
+        .attr("x", (svgwidth/2))             
+        .attr("y", (margin.top/2))
+        .attr("text-anchor", "middle")
+        .style("font-size","20px")
+        .style("font-weight","bold")
+        .text("Time Search");
 
 });
 
