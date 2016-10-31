@@ -191,6 +191,14 @@ svg.append("text")
         .style("font-weight","bold")
         .text("Time Search");
 
+// User manual
+svg.append("text")
+        .attr("x", (margin.left))             
+        .attr("y", (svgheight-5))
+        .attr("text-anchor", "start")
+        .style("font-size","10px")
+        .text("Instructions: Click anywhere in the chart to create a timebox, you can create as many as required. You can also resize and move them. To delete a box shift+click and move the box.");
+
 });
 
 
