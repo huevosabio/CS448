@@ -1,0 +1,26 @@
+
+<html>
+
+<head>
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+    <div id="visualization_area"></div>
+
+    <script>
+        var svg = d3.select("#visualization_area")
+            .append("svg")
+            .attr("width", 1000)
+            .attr("height", 1000);
+
+        svg.append("circle")
+            .style("fill", "blue")
+            .attr("r", 55)
+            .attr("cx", 60)
+            .attr("cy", 60);
+    </script>
+
+</body>
+
+</html>

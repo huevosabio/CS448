@@ -10,6 +10,12 @@ http://blog.schedulenaut.com/multiple-no-collision-brushes-in-d3js/
 http://bl.ocks.org/jssolichin/54b4995bd68275691a23
 */
 
+//var scenario = 'stock';
+var scenario = 'energy';
+
+var filename = scenario === 'energy' ? 'dic_profiles.csv' :  "data_06-08.csv";
+
+
 var titlebox = d3.select('h1').node().getBoundingClientRect();
 
 var svgwidth = 960,
@@ -42,8 +48,11 @@ var svg = d3.select('body')
 //   .attr("class", "brush")
 //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // super important!
 
-
-var parseDate = d3.timeParse("%m/%e/%y");
+if (scenario === 'stock'){
+  var parseDate = d3.timeParse("%m/%e/%y");
+} else if (scenario === 'energy'){
+  var parseDate = d3.timeParse("%m/%e/%Y %H:%M");
+}
 
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
@@ -90,7 +99,7 @@ var trees,
 //    window.open(encodedUri);
 //});
 
-d3.csv("data_06-08.csv", type, function(error, data) {
+d3.csv(filename, type, function(error, data) {
   if (error) throw error;
 
   stocks = data.columns.slice(1).map(function(id, index) {
