@@ -1,3 +1,9 @@
+# final stuff
+final/*.csv
+final/bower_components
+final/npm_modules
+final/node_modules
+
 # Logs
 logs
 *.log

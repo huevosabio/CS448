@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<!-- manual -->
+	<link rel="stylesheet" type="text/css" href="bower_components/leaflet/dist/leaflet.css">
+	<link rel="stylesheet" type="text/css" href="st-viz.css">
+	<link rel="stylesheet" type="text/css" href="bower_components/material-design-lite/material.css">
+	<!-- bower:js -->
+	<script src="bower_components/d3/d3.js"></script>
+	<script src="bower_components/crossfilter2/crossfilter.min.js"></script>
+	<script src="bower_components/leaflet/dist/leaflet-src.js"></script>
+	<script src="bower_components/material-design-lite/material.min.js"></script>
+	<!-- endbower -->
+</head>
+	<body>
+		<!-- Charts -->
+		<div class="mdl-grid">
+			<div class="mdl-cell mdl-cell--6-col">
+				<div id="mapId"></div>
+			</div>
+			<div class="mdl-cell mdl-cell--6-col">
+				<h4></h4>
+				<div id="shapesChart"></div>
+			</div>
+			<div class="mdl-cell mdl-cell--6-col">
+				<div id="dailyAvg"></div>
+			</div>
+			<div class="mdl-cell mdl-cell--6-col">
+				<div id="timeline"></div>
+			</div>
+		</div>
+		<!-- js files -->
+		<script src="map.js"></script>
+		<script src="timesearch.js"></script>
+		<!-- end js files -->
+	</body>
+</html>

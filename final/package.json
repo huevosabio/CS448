@@ -13,5 +13,8 @@
     "luma.gl": "^2.10.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1"
+  },
+  "devDependencies": {
+    "grunt-wiredep": "^3.0.1"
   }
 }

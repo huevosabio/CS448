@@ -1,0 +1,63 @@
+#mapId {
+	height: 600px;
+}
+
+#shapesChart{
+	position: relative;
+}
+
+path { 
+  stroke: steelblue;
+  stroke-width: 2;
+  fill: none;
+}
+
+svg {
+  position: absolute;
+  left: 0px;
+}
+
+canvas {
+	position: absolute;
+	left: 0px;
+}
+ 
+.axis path,
+.axis line {
+	fill: none;
+	stroke: grey;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+.selection {
+    stroke          : gray;
+    stroke-width    : 2px;
+    stroke-dasharray: 4px;
+    stroke-opacity  : 0.01;
+    fill            : gray;
+}
+
+.state {
+    stroke  : gray;
+    fill    : white;
+}
+
+
+.line--background {
+  stroke: gray;
+  stroke-opacity: 0.0;
+  stroke-width: 1;
+}
+
+.line--unselected {
+  stroke: #000;
+  opacity: 0.0;
+  stroke-width: 1;
+}
+
+.line--selected {
+  stroke: #000;
+  opacity: 1;
+  stroke-width: 1;
+}
