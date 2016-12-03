@@ -15,9 +15,6 @@ var scenario = 'energy';
 
 var filename = scenario === 'energy' ? 'dic_profiles.csv' :  "data_06-08.csv";
 
-
-var titlebox = d3.select('h4').node().getBoundingClientRect();
-
 var svgwidth = 500,
     svgheight = 200,
     margin = {top: 30, right: 50, bottom: 30, left: 50};
@@ -29,16 +26,16 @@ var canvas = d3.select('#shapesChart')
     .style("padding", margin.top + "px " + margin.right + "px " + margin.bottom + "px " + margin.left + "px "),
     context = canvas.node().getContext('2d');
 
-if(navigator.userAgent.toLowerCase().indexOf('firefox') <= -1){
+//if(navigator.userAgent.toLowerCase().indexOf('firefox') <= -1){
      // If not Firefox
-    canvas.style('top', titlebox.height + titlebox.top + titlebox.bottom + "px")
-}
+//    canvas.style('top', titlebox.height + titlebox.top + titlebox.bottom + "px")
+//}
 
 var svg = d3.select('#shapesChart')
     .append('svg')
     .attr('width', svgwidth)
     .attr('height', svgheight)
-    .style('top', titlebox.height + titlebox.top + titlebox.bottom),
+    //.style('top', titlebox.height + titlebox.top + titlebox.bottom),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     width = svgwidth - margin.left - margin.right,
     height = svgheight - margin.top - margin.bottom;
@@ -76,28 +73,9 @@ var selectedIds, allIds;
 newBrush();
 
 
-//var quadtree = d3.quadtree()
-//      .extent([[0, 0], [width + 1, height + 1]])
-//      .x(function(d){ return x(d.date); })
-//      .y(function(d){return y(d.price); });
-
 var trees,
     stocks;
 
-//for metrics
-//var metrics = [];
-//var fname = "IJGResults";
-//var csvContent = "data:text/csv;charset=utf-8,";
-
-//$("#pressme").click(function(){
-//    metrics.forEach(function(infoArray, index){
-//      dataString = infoArray.join(",");
-//      csvContent += dataString+ "\n";
-//    });
-//
-//    var encodedUri = encodeURI(csvContent);
-//    window.open(encodedUri);
-//});
 
 d3.csv(filename, type, function(error, data) {
   if (error) throw error;
