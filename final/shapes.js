@@ -16,8 +16,8 @@ function plotShapes(data, containerId, chartSize){
     .attr('height', chartSize.height)
     //.style('top', titlebox.height + titlebox.top + titlebox.bottom),
     g = svg.append("g").attr("transform", "translate(" + chartSize.margin.left + "," + chartSize.margin.top + ")");
-    width = chartSize.width - margin.left - margin.right,
-    height = chartSize.height - margin.top - margin.bottom;
+    width = chartSize.width - chartSize.margin.left - chartSize.margin.right,
+    height = chartSize.height - chartSize.margin.top - chartSize.margin.bottom;
 
   var parseDate = d3.timeParse("%m/%e/%Y %H:%M");
 
@@ -162,10 +162,10 @@ function plotShapes(data, containerId, chartSize){
       })
       this.remove();
       updateFilter();
-      stock_filtered = stocks.filter(function(d, i){
+      shape_filtered = shapes.filter(function(d, i){
           return selectedIds.has(d.id)
         });
-      update(stock_filtered);
+      update(shape_filtered);
       return
     }
     var s = d3.event.selection,
@@ -182,10 +182,10 @@ function plotShapes(data, containerId, chartSize){
     
     updateFilter();
     
-    stock_filtered = stocks.filter(function(d, i){
+    shape_filtered = shapes.filter(function(d, i){
           return selectedIds.has(d.id)
         });
-    update(stock_filtered);
+    update(shape_filtered);
   }
 
   function updateFilter() {
@@ -213,7 +213,7 @@ function plotShapes(data, containerId, chartSize){
           var d = node.data;
           //d.scanned = true;
   
-          if ((x(d.date) >= x0) && (x(d.date) < x3) && (y(d.price) >= y0) && (y(d.price) < y3)){
+          if ((x(d.date) >= x0) && (x(d.date) < x3) && (y(d.fraction) >= y0) && (y(d.fraction) < y3)){
             found = true;
             return true;
           };
@@ -226,7 +226,7 @@ function plotShapes(data, containerId, chartSize){
     return found;
   }
 
-function treeSearch2(trees, x0, y0, x3, y3) {
+  function treeSearch2(trees, x0, y0, x3, y3) {
     // for each tree search for the point, if point, add to set.
     var selected = new Set();
     trees.forEach(function(t){
@@ -238,6 +238,72 @@ function treeSearch2(trees, x0, y0, x3, y3) {
     return selected;
   }
 
+  function newBrush(){
+      var brush = d3.brush()
+          .on("brush", brushed)
+          .on("end", brushend)
+      brushes.push({
+        id: 'b' + brushCounter, 
+        brush: brush, 
+        selection: [], 
+        selected: false
+        }); //d3 doesn't like all numeric ids
+      brushCounter += 1;
+      updateBrushes();
+    }
+
+  function updateBrushes() {
+    var gBrush = svg
+      .selectAll('.brush')
+      .data(brushes,  function (d){ return d ? d.id : this.id; });
+  
+    gBrush.enter()
+      .insert("g", '.brush')
+      .attr('class', 'brush')
+      .attr('id', function(d, i){return d.id})
+      .attr("transform", "translate(" + chartSize.margin.left + "," + chartSize.margin.top + ")")
+      .each(function(brushWrapper) {
+        //call the brush
+        brushWrapper.brush(d3.select(this));
+      });
+  
+    gBrush.attr('class', function(d,i){return 'brush brush-'+i})
+      .selectAll('.overlay')
+      .attr('pointer-events', function(brushWrapper, i){
+            var brush = brushWrapper.brush;
+  
+            return i === brushes.length-1 &&
+              brush !== undefined &&
+              brush.brushSelection() === brush.brushSelection()
+                ? 'all' : 'none';
+      })
+  
+    gBrush.exit()
+      .remove();
+  }
+
+  function update(data) {
+  
+    var shape = g.selectAll(".shape")
+      .data(data, function(d) { return d ? d.id : this.id; });
+  
+    var update_shape = shape.enter().append("g")
+      .attr("class", "shape line--selected");
+  
+    update_shape.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return z(d.id); });  
+  
+    update_shape.append("text")
+        .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+        .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.fraction) + ")"; })
+        .attr("x", 3)
+        .attr("dy", "0.35em")
+        .style("font", "10px sans-serif")
+        .text(function(d) { return d.id; });
+    shape.exit().remove();
+  }
 
   // ----- END plotShapes -----
 }
