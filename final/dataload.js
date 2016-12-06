@@ -9,9 +9,19 @@ var shapeParser = dataParser(d3.timeParse("%m/%e/%Y %H:%M")),
 
 d3.queue()
     .defer(d3.csv, 'dic_profiles.csv', shapeParser)
-    .await(function(error, shapeData) {
-      if (error) throw error;
-      plotShapes(shapeData, '#shapesChart', chartSize)
+    .defer(d3.csv, 'encoded_timeseries.csv', shapeParser)
+    .await(function(error, shapeData, meterData) {
+      	if (error) throw error;
+	    plotShapes(shapeData, '#shapesChart', chartSize);
+
+      	// Crossfilter dimensions and groups
+      	var cf = crossfilter(meterData),
+      		byDate = cf.dimension(function(d){ return d.date; })
+      	//    byScr       = nation.dimension(function(d){ return d.score; }),
+      	//    byScrGrp    = byScr.group().reduceCount()
+      	//    byHosp      = nation.dimension(function(d){ return d.FIPS; });
+      	console.log(byDate);
+      	plotTimeline (byDate, '#timeline', chartSize);
     });
 
 function dataParser(timeParser){

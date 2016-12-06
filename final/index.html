@@ -5,7 +5,7 @@
 	<!-- manual -->
 	<link rel="stylesheet" type="text/css" href="bower_components/leaflet/dist/leaflet.css">
 	<link rel="stylesheet" type="text/css" href="bower_components/material-design-lite/material.css">
-	<link rel="stylesheet" type="text/css" href="bower_components/getmdl-dashboard/dist/css/application.css">
+	<link rel="stylesheet" type="text/css" href="application.css">
 	<link rel="stylesheet" type="text/css" href="st-viz.css">
 	<!-- bower:js -->
 	<script src="bower_components/d3/d3.js"></script>
@@ -41,11 +41,18 @@
                             </div>
                         </div>
 					</div>
-					<div class="mdl-cell mdl-cell--6-col">
-						<div id="dailyAvg"></div>
+					<div class="mdl-cell mdl-cell--6-col-col-desktop mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+						<div class="mdl-card mdl-shadow--2dp">
+	                       	<div class="mdl-card__title">
+	                       	    <h3 class="mdl-card__title-text">Consumption Patterns</h3>
+	                       	</div>
+	                       	<div class="mdl-card__supporting-text">
+	                       	    <div id="timeline" class="line-chart__container"></div>
+                            </div>
+                        </div>
 					</div>
 					<div class="mdl-cell mdl-cell--6-col">
-						<div id="timeline"></div>
+						<div id="dailyAvg"></div>
 					</div>
 				</div>
 			</main>
@@ -54,6 +61,7 @@
 			<!-- js files -->
 			<script src="map.js"></script>
 			<script src="shapes.js"></script>
+			<script src="timeline.js"></script>
 			<script src="dataload.js"></script>
 			<!-- end js files -->
 	</body>
