@@ -1,8 +1,8 @@
 var shapeParser = dataParser(d3.timeParse("%m/%e/%Y %H:%M")),
 	chartSize = {
-		width: 500,
+		width: document.getElementById('shapesCard').clientWidth,
 		height: 200,
-    	margin: {top: 30, right: 50, bottom: 30, left: 50}
+    	margin: {top: 20, right: 16, bottom: 40, left: 50}
 	}
 
 

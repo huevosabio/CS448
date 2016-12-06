@@ -19,8 +19,6 @@ function plotShapes(data, containerId, chartSize){
     width = chartSize.width - chartSize.margin.left - chartSize.margin.right,
     height = chartSize.height - chartSize.margin.top - chartSize.margin.bottom;
 
-  var parseDate = d3.timeParse("%m/%e/%Y %H:%M");
-
   var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
     z = d3.scaleOrdinal(d3.schemeCategory10);
@@ -117,23 +115,25 @@ function plotShapes(data, containerId, chartSize){
   });
   context.lineWidth = 1.5;
   context.strokeStyle = "gray";
-  context.globalAlpha = 0.1;
+  context.globalAlpha = 0.9;
   context.stroke();
 
 
   g.append("g")
-      .attr("class", "axis axis--x")
+      .attr("class", "axis axis--x x-axis-label")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
+   yaxisGen = d3.axisLeft(y).ticks(6);
    g.append("g")
-       .attr("class", "axis axis--y")
-       .call(d3.axisLeft(y))
+       .attr("class", "axis axis--y y-axis-label")
+       .call(yaxisGen);
 
   svg.append("text")
     .attr("transform", "rotate(-90)")
     .attr("dy", "1em")
     .attr("x",0-(chartSize.height/2))
+    .attr("class", "x-axis-label")
     .style("text-anchor", "middle")
     .text("Energy Fraction");
 
@@ -294,7 +294,7 @@ function plotShapes(data, containerId, chartSize){
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
       .style("stroke", function(d) { return z(d.id); });  
-  
+    /*
     update_shape.append("text")
         .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
         .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.fraction) + ")"; })
@@ -302,6 +302,7 @@ function plotShapes(data, containerId, chartSize){
         .attr("dy", "0.35em")
         .style("font", "10px sans-serif")
         .text(function(d) { return d.id; });
+        */
     shape.exit().remove();
   }
 

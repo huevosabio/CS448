@@ -4,35 +4,57 @@
 	<meta charset="utf-8">
 	<!-- manual -->
 	<link rel="stylesheet" type="text/css" href="bower_components/leaflet/dist/leaflet.css">
-	<link rel="stylesheet" type="text/css" href="st-viz.css">
 	<link rel="stylesheet" type="text/css" href="bower_components/material-design-lite/material.css">
+	<link rel="stylesheet" type="text/css" href="bower_components/getmdl-dashboard/dist/css/application.css">
+	<link rel="stylesheet" type="text/css" href="st-viz.css">
 	<!-- bower:js -->
 	<script src="bower_components/d3/d3.js"></script>
 	<script src="bower_components/crossfilter2/crossfilter.min.js"></script>
 	<script src="bower_components/leaflet/dist/leaflet-src.js"></script>
 	<script src="bower_components/material-design-lite/material.min.js"></script>
+	<script src="bower_components/nvd3/build/nv.d3.js"></script>
+	<script src="bower_components/getmdl-select/getmdl-select.min.js"></script>
 	<!-- endbower -->
 </head>
 	<body>
-		<!-- Charts -->
-		<div class="mdl-grid">
-			<div class="mdl-cell mdl-cell--6-col">
-				<div id="mapId"></div>
-			</div>
-			<div class="mdl-cell mdl-cell--6-col">
-				<div id="shapesChart"></div>
-			</div>
-			<div class="mdl-cell mdl-cell--6-col">
-				<div id="dailyAvg"></div>
-			</div>
-			<div class="mdl-cell mdl-cell--6-col">
-				<div id="timeline"></div>
-			</div>
+		<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header is-small-screen">
+			<!-- Charts -->
+			<main class="mdl-layout__content">
+				<div class="mdl-grid">
+					<div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
+						<div class="mdl-card mdl-shadow--2dp">
+                        	<div class="mdl-card__title">
+                        	    <h3 class="mdl-card__title-text">Location</h3>
+                        	</div>
+                        	<div class="mdl-card__supporting-text">
+                        	    <div id="mapId"></div>
+                        	</div>
+						</div>
+					</div>
+					<div id="shapesCard" class="mdl-cell mdl-cell--6-col-desktop mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+						<div class="mdl-card mdl-shadow--2dp">
+	                       	<div class="mdl-card__title">
+	                       	    <h3 class="mdl-card__title-text">Consumption Patterns</h3>
+	                       	</div>
+	                       	<div class="mdl-card__supporting-text">
+	                       	    <div id="shapesChart" class="line-chart__container"></div>
+                            </div>
+                        </div>
+					</div>
+					<div class="mdl-cell mdl-cell--6-col">
+						<div id="dailyAvg"></div>
+					</div>
+					<div class="mdl-cell mdl-cell--6-col">
+						<div id="timeline"></div>
+					</div>
+				</div>
+			</main>
 		</div>
-		<!-- js files -->
-		<script src="map.js"></script>
-		<script src="shapes.js"></script>
-		<script src="dataload.js"></script>
-		<!-- end js files -->
+
+			<!-- js files -->
+			<script src="map.js"></script>
+			<script src="shapes.js"></script>
+			<script src="dataload.js"></script>
+			<!-- end js files -->
 	</body>
 </html>
