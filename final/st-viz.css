@@ -8,6 +8,15 @@
   width: 100%;
 }
 
+
+.background.bar {
+  fill: #ccc;
+}
+
+.foreground.bar {
+  fill: steelblue;
+}
+
 path { 
   stroke: steelblue;
   stroke-width: 2;
@@ -75,4 +84,10 @@ text {
 
 .leaflet-control-attribution{
   font-size:6px;
+}
+
+
+.zipcodes {
+  opacity: 0.3;
+  stroke-width: 0.1;
 }

@@ -1,4 +1,4 @@
-function plotShapes(data, containerId, chartSize){
+function plotShapes(data, containerId, chartSize, byShape){
   // ----- START BASIC VARIABLES -----
   var canvas = d3.select(containerId)
     .append('canvas')
@@ -15,6 +15,7 @@ function plotShapes(data, containerId, chartSize){
     .attr('width', chartSize.width)
     .attr('height', chartSize.height)
     //.style('top', titlebox.height + titlebox.top + titlebox.bottom),
+
     g = svg.append("g").attr("transform", "translate(" + chartSize.margin.left + "," + chartSize.margin.top + ")");
     width = chartSize.width - chartSize.margin.left - chartSize.margin.right,
     height = chartSize.height - chartSize.margin.top - chartSize.margin.bottom;
@@ -48,11 +49,11 @@ function plotShapes(data, containerId, chartSize){
   // ----- START DATA PROCESSING -----
   shapes = data.columns.slice(1).map(function(id, index) {
     values = data.map(function(d) {
-        return {date: d.date, fraction: d[id], id: id, index: index};
+        return {date: d.date, fraction: d[id], id: +id, index: index};
       });
 
     return {
-      id: id,
+      id: +id,
       values: values
     };
   });
@@ -89,7 +90,7 @@ function plotShapes(data, containerId, chartSize){
 
   trees = data.columns.slice(1).map(function(id, index) {
     values = data.map(function(d) {
-        return {date: d.date, fraction: d[id], id: id, index: index};
+        return {date: d.date, fraction: d[id], id: +id, index: index};
       });
 
     var tree = d3.quadtree()
@@ -100,7 +101,7 @@ function plotShapes(data, containerId, chartSize){
       .addAll(values);
       
     return {
-      id: id,
+      id: +id,
       tree: tree
     };
   });
@@ -122,7 +123,7 @@ function plotShapes(data, containerId, chartSize){
   g.append("g")
       .attr("class", "axis axis--x x-axis-label")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H")));
 
    yaxisGen = d3.axisLeft(y).ticks(6);
    g.append("g")
@@ -203,6 +204,13 @@ function plotShapes(data, containerId, chartSize){
       });
     }
     selectedIds = new Set(selectedIds);
+    if (activeBrushes.length > 0){
+      byShape.filterFunction(function(d){
+        return selectedIds.has(d);
+      })
+    } else {
+      byShape.filter(null);
+    }
   }
 
   function treeSearchBool(quadtree, x0, y0, x3, y3) {
