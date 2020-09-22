@@ -1,5 +1,5 @@
 #mapId {
-	height: 600px;
+	height: 300px;
   width: 100%;
 }
 
@@ -90,4 +90,13 @@ text {
 .zipcodes {
   opacity: 0.3;
   stroke-width: 0.1;
+}
+
+.d3-tip {
+  line-height: 1.5;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 0px;
+  text-align: center;
 }

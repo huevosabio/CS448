@@ -1,21 +1,27 @@
 //modified from https://github.com/nyquist212/CMSMSPB/blob/master/js/drawCharts.js
-function plotTimeline (byDate, containerId, chartSize, renderEvent) {
-
+function plotHistogram (byAvg, idAvg, containerId, chartSize, renderEvent) {
+    
     var width = chartSize.width - chartSize.margin.left - chartSize.margin.right,
         height = chartSize.height - chartSize.margin.top - chartSize.margin.bottom;
 
-    var xScale = d3.scaleTime().range([0, width]);
+    var xScale = d3.scaleLinear().rangeRound([0, width]);
+
+    var bins = d3.histogram()
+        .domain(xScale.domain())
+        .thresholds(xScale.ticks(20))(idAvg.map(function(d){
+            return d.value.avg;
+        }));
 
     var yScale = d3.scaleLinear().range([height, 0]);
 
     var barPadding = 0.00;
 
-    var byDateGroup = byDate.group().reduceSum(function(d) { return d.dailySum; });
+    
 
-    //console.log(byDateGroup.all());
+    //console.log(byAvgGroup.all());
 
-    xScale.domain(d3.extent(byDateGroup.all(), function(d) { return d.key; }));
-    yScale.domain([0,d3.extent(byDateGroup.all(), function(d) { return d.value; })[1]]);
+    xScale.domain(d3.extent(idAvg, function(d) { return d.value.avg; }));
+    yScale.domain([0, d3.max(bins, function(d) { return d.length; })]);
 
     // bar tool tip
     /*
@@ -59,7 +65,7 @@ function plotTimeline (byDate, containerId, chartSize, renderEvent) {
         //    .text("Total Daily Consumption (MWh)");
 
     // Histogram Y Axis 
-    var yAxis = d3.axisLeft(yScale).ticks(6).tickFormat(d3.format(".2s"));
+    var yAxis = d3.axisLeft(yScale).ticks(6)//.tickFormat(d3.format(".2s"));
 
         _barChart.append("g")
             .attr("class", "axis")
@@ -67,7 +73,7 @@ function plotTimeline (byDate, containerId, chartSize, renderEvent) {
             .call(yAxis);
 
     // Histogram X Axis Object
-    var xAxis = d3.axisBottom(xScale).ticks(6).tickFormat(d3.timeFormat("%b"));
+    var xAxis = d3.axisBottom(xScale).ticks(6);
 
         _barChart.append("g")
             .attr("class", "axis axis--x x-axis-label")
@@ -77,21 +83,21 @@ function plotTimeline (byDate, containerId, chartSize, renderEvent) {
     render();
     
     function render() {
-        yScale.domain([0,d3.extent(byDateGroup.all(), function(d) { return d.value; })[1]]);
-        _barChart.select('.axis--y').call(yAxis); 
+        //yScale.domain([0,d3.extent(byAvgGroup.all(), function(d) { return d.value; })[1]]);
+        //_barChart.select('.axis--y').call(yAxis); 
+
+        console.log(bins);
 
 
         // Histogram bars
         var bars = _barChart.selectAll("rect")
-            .data(snap_to_zero(byDateGroup).all(),function(d) { 
-                return d ? String(d.key) + String(d.value) : this.id; 
-            });
+            .data(bins);
 
         bars.enter().append("rect")
-            .attr("x", function (d) {return xScale(d.key); })
-            .attr("width", width / byDateGroup.size() - barPadding)
-            .attr("y", function (d) { return yScale(d.value); })
-            .attr("height", function (d) { return (height- yScale(d.value)); })
+            .attr("x", function(d) {return d.x0})
+            .attr("width", xScale(bins[0].x1) - xScale(bins[0].x0) - barPadding)
+            .attr("y", function (d) { return yScale(d.length); })
+            .attr("height", function (d) { return (height- yScale(d.length)); })
             .attr("class", "foreground.bar") 
             .attr("fill", "#91C194")
         
@@ -112,7 +118,7 @@ function plotTimeline (byDate, containerId, chartSize, renderEvent) {
                 return lower <= k && k <= upper ? "1" : ".2";  
              });
         // Filter crossfilter by brush
-        byDate.filterRange([ xScale.invert(lower).getTime(), xScale.invert(upper).getTime()]);
+        byAvg.filterRange([ xScale.invert(lower).getTime(), xScale.invert(upper).getTime()]);
         window.dispatchEvent(renderEvent);
 
     } // End brushmove
@@ -122,7 +128,7 @@ function plotTimeline (byDate, containerId, chartSize, renderEvent) {
             // Select bar rects and adjust opacity
             _barChart.selectAll("rect")
                 .style("opacity","1");
-            byDate.filter(null);
+            byAvg.filter(null);
             window.dispatchEvent(renderEvent);
         }
     }

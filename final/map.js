@@ -10,7 +10,7 @@ function plotMap(data, containerId, byZip){
 
 	// add layer
 	L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHVldm9zYWJpbyIsImEiOiJmTHplSnY0In0.7eT8FT5PcjhjC6Z5mJaKCA', {
-    	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    	//attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     	detectRetina: true
 	}).addTo(mymap);
 
@@ -19,6 +19,7 @@ function plotMap(data, containerId, byZip){
     	g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
     var zips = topojson.feature(data, data.objects.zip),
+      zips2 = JSON.parse(JSON.stringify(zips)), //hackery to be able to trigger the udpates of d3
     	transform = d3.geoTransform({point: projectPoint}),
     	path = d3.geoPath().projection(transform);
 
@@ -27,28 +28,11 @@ function plotMap(data, containerId, byZip){
     	.range(["steelblue", "brown"]);
 
     var zipEnergy = {};
-    byZipGroup.all().forEach(function(d){
-    	zipEnergy[d.key] = d.value;
-    });
 
-    //Create freaking object with all the zip values; this might need to go away once we have filtering
+    render();
 
-
-    var feature = g.selectAll("path")
-      	.data(zips.features)
-      	.enter().append("path")
-      	.attr("class", "zipcodes")
-        .attr("d", path)
-        .style("fill", function(d) {
-        	if (d.properties.zipcode in zipEnergy){
-        		return fill(zipEnergy[d.properties.zipcode]);
-        	} else{
-        		return fill(0);
-        	}
-        });
 
     mymap.on("viewreset", reset);
-    mymap.on("viewreset", function (e) { console.log("viewreset", e); });
     mymap.on("zoomend", reset);
     reset();
 
@@ -64,7 +48,7 @@ function plotMap(data, containerId, byZip){
 
         g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
 
-        feature.attr("d", path);
+        g.selectAll(".zipcodes").attr("d", path);
      }
 
      function projectPoint(x, y) {
@@ -77,4 +61,47 @@ function plotMap(data, containerId, byZip){
      		return element.zip5 === zipcode;
      	});
      }
+
+     tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .direction('n')
+        .html(function(d) {
+          var consumption = d.id in zipEnergy ? zipEnergy[d.properties.zipcode] : 0;
+          return String(d.id) + "<br/>Yearly Energy Consumption: " + (consumption).toFixed(2)
+        });
+
+        g.call(tip);
+
+     function render(){
+      [zips, zips2] = [zips2, zips]; //hackery to be able to trigger the update methods of d3
+
+        byZipGroup.all().forEach(function(d){
+            zipEnergy[d.key] = d.value;
+        });
+        //zips = topojson.feature(data, data.objects.zip)
+        zips.features.forEach(function(d, idx){
+          d.properties.consumption = d.properties.zipcode in zipEnergy ? zipEnergy[d.properties.zipcode] : 0;
+          d.properties.key = String(d.properties.zipcode) + String(d.properties.consumption);
+        });
+
+        fill.domain([0, d3.extent(byZipGroup.all(), function(d) { return d.value; })[1]]);
+
+      	var feature = g.selectAll(".zipcodes").data(zips.features, function(d){
+      			return d ? d.properties.key : this.id;
+      		});
+      	
+      	feature.enter().append("path")
+      		.attr("class", "zipcodes")
+        	.attr("d", path)
+          .attr("id", function(d, idx){
+            return d.properties.zipcode;
+          })
+        	.style("fill", function(d, idx) {
+        		return fill(d.properties.consumption);
+        	});
+
+        feature.exit().remove();     }
+
+     return render;
 }

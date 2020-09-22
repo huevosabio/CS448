@@ -1,0 +1,62 @@
+\begin{thebibliography}{10}
+
+\bibitem{minard1869tableaux}
+CJ~Minard.
+\newblock Tableaux graphiques et cartes figuratives de m. minard, 1845-1869,
+  1869.
+
+\bibitem{leaflet}
+Leaflet: an open-source javascript library for mobile-friendly interactive
+  maps.
+\newblock \url{http://leafletjs.com/}.
+
+\bibitem{mapbox}
+Mapbox.
+\newblock \url{https://www.mapbox.com/}.
+
+\bibitem{2011-d3}
+Michael Bostock, Vadim Ogievetsky, and Jeffrey Heer.
+\newblock D3: Data-driven documents.
+\newblock {\em IEEE Trans. Visualization \& Comp. Graphics (Proc. InfoVis)},
+  2011.
+
+\bibitem{liu2014effects}
+Zhicheng Liu and Jeffrey Heer.
+\newblock The effects of interactive latency on exploratory visual analysis.
+\newblock {\em IEEE transactions on visualization and computer graphics},
+  20(12):2122--2131, 2014.
+
+\bibitem{lins2013nanocubes}
+Lauro Lins, James~T Klosowski, and Carlos Scheidegger.
+\newblock Nanocubes for real-time exploration of spatiotemporal datasets.
+\newblock {\em IEEE Transactions on Visualization and Computer Graphics},
+  19(12):2456--2465, 2013.
+
+\bibitem{park2015visualization}
+Yongjoo Park, Michael Cafarella, and Barzan Mozafari.
+\newblock Visualization-aware sampling for very large databases.
+\newblock {\em arXiv preprint arXiv:1510.03921}, 2015.
+
+\bibitem{kwac2014household}
+Jungsuk Kwac, June Flora, and Ram Rajagopal.
+\newblock Household energy consumption segmentation using hourly data.
+\newblock {\em IEEE Transactions on Smart Grid}, 5(1):420--430, 2014.
+
+\bibitem{borgeson2015learning}
+Sam Borgeson, June~A Flora, Jungsuk Kwac, Chin-Woo Tan, and Ram Rajagopal.
+\newblock Learning from hourly household energy consumption: Extracting,
+  visualizing and interpreting household smart meter data.
+\newblock In {\em International Conference of Design, User Experience, and
+  Usability}, pages 337--345. Springer, 2015.
+
+\bibitem{crossfilter}
+Crossfilter: Fast n-dimensional filtering and grouping of records.
+\newblock \url{https://github.com/square/crossfilter}.
+
+\bibitem{hochheiser2001interactive}
+Harry Hochheiser and Ben Shneiderman.
+\newblock Interactive exploration of time series data.
+\newblock In {\em International Conference on Discovery Science}, pages
+  441--446. Springer, 2001.
+
+\end{thebibliography}

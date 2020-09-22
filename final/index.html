@@ -15,6 +15,8 @@
 	<script src="bower_components/nvd3/build/nv.d3.js"></script>
 	<script src="bower_components/getmdl-select/getmdl-select.min.js"></script>
 	<script src="bower_components/topojson/topojson.js"></script>
+	<script src="bower_components/d3-tip/index.js"></script>
+	<script src="bower_components/reductio/reductio.js"></script>
 	<!-- endbower -->
 </head>
 	<body>
@@ -22,10 +24,10 @@
 			<!-- Charts -->
 			<main class="mdl-layout__content">
 				<div class="mdl-grid">
-					<div class="mdl-cell mdl-cell--6-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
+					<div class="mdl-cell mdl-cell--12-col-desktop">
 						<div class="mdl-card mdl-shadow--2dp">
                         	<div class="mdl-card__title">
-                        	    <h3 class="mdl-card__title-text">Location</h3>
+                        	    <h3 class="mdl-card__title-text">Consumption by ZipCode</h3>
                         	</div>
                         	<div class="mdl-card__supporting-text">
                         	    <div id="mapId"></div>
@@ -45,16 +47,24 @@
 					<div class="mdl-cell mdl-cell--6-col-col-desktop mdl-cell--6-col-tablet mdl-cell--2-col-phone">
 						<div class="mdl-card mdl-shadow--2dp">
 	                       	<div class="mdl-card__title">
-	                       	    <h3 class="mdl-card__title-text">Consumption Patterns</h3>
+	                       	    <h3 class="mdl-card__title-text">Total Daily Consumption (Wh)</h3>
 	                       	</div>
 	                       	<div class="mdl-card__supporting-text">
 	                       	    <div id="timeline" class="line-chart__container"></div>
                             </div>
                         </div>
 					</div>
-					<div class="mdl-cell mdl-cell--6-col">
-						<div id="dailyAvg"></div>
-					</div>
+					<!--
+					<div class="mdl-cell mdl-cell--6-col-col-desktop mdl-cell--6-col-tablet mdl-cell--2-col-phone">
+						<div class="mdl-card mdl-shadow--2dp">
+	                       	<div class="mdl-card__title">
+	                       	    <h3 class="mdl-card__title-text">Distribution of Customer Average Consumption (Wh)</h3>
+	                       	</div>
+	                       	<div class="mdl-card__supporting-text">
+	                       	    <div id="histogram" class="line-chart__container"></div>
+                            </div>
+                        </div>
+					</div> -->
 				</div>
 			</main>
 		</div>
@@ -63,6 +73,7 @@
 			<script src="map.js"></script>
 			<script src="shapes.js"></script>
 			<script src="timeline.js"></script>
+			<!-- <script src="histogram.js"></script> -->
 			<script src="dataload.js"></script>
 			<!-- end js files -->
 	</body>

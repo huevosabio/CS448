@@ -1,4 +1,4 @@
-function plotShapes(data, containerId, chartSize, byShape){
+function plotShapes(data, containerId, chartSize, byShape, renderEvent){
   // ----- START BASIC VARIABLES -----
   var canvas = d3.select(containerId)
     .append('canvas')
@@ -25,12 +25,12 @@ function plotShapes(data, containerId, chartSize, byShape){
     z = d3.scaleOrdinal(d3.schemeCategory10);
 
   var line = d3.line()
-    .curve(d3.curveBasis)
+    .curve(d3.curveCatmullRom.alpha(1))
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.fraction); });
 
   var backgroundline = d3.line()
-    .curve(d3.curveBasis)
+    .curve(d3.curveCatmullRom.alpha(1))
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.fraction); })
     .context(context);
@@ -211,6 +211,7 @@ function plotShapes(data, containerId, chartSize, byShape){
     } else {
       byShape.filter(null);
     }
+    window.dispatchEvent(renderEvent);
   }
 
   function treeSearchBool(quadtree, x0, y0, x3, y3) {

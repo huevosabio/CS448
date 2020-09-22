@@ -20,7 +20,9 @@
     "leaflet": "^1.0.2",
     "material-design-lite": "^1.2.1",
     "getmdl-dashboard": "https://github.com/CreativeIT/material-dashboard-lite.git#^1.0.0-b",
-    "topojson": "^2.1.0"
+    "topojson": "^2.1.0",
+    "d3-tip": "^0.7.1",
+    "reductio": "^0.6.3"
   },
   "overrides": {
     "getmdl-dashboard": {
@@ -28,5 +30,8 @@
         "./dist/css/application.css"
       ]
     }
+  },
+  "resolutions": {
+    "crossfilter2": "1.4.0-alpha.06"
   }
 }
